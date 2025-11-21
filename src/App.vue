@@ -4,6 +4,9 @@
     <div class="nav-links">
       <a href="/board1.html" class="nav-link">看板1 - 生产看板</a>
       <a href="/board2.html" class="nav-link">看板2 - 设备看板</a>
+      <a href="/board3.html" class="nav-link">看板3 - 质量看板</a>
+      <a href="/board4.html" class="nav-link">看板4 - 仓储看板</a>
+      <a href="/board5.html" class="nav-link">看板5 - 能耗看板</a>
     </div>
   </div>
 </template>

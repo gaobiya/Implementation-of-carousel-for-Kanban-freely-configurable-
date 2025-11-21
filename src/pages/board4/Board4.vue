@@ -1,7 +1,7 @@
 <template>
-  <div class="board1">
-    <h1>看板1 - 生产看板</h1>
-    <p>这是第一个看板页面，您可以在这里添加生产相关的数据展示</p>
+  <div class="board4">
+    <h1>看板4 - 仓储看板</h1>
+    <p>这是第四个看板页面，您可以在这里添加仓储相关的数据展示</p>
   </div>
 </template>
 
@@ -9,11 +9,11 @@
 import { getNextBoard, getSwitchInterval } from '../../utils/boardSwitch.js'
 
 export default {
-  name: 'Board1',
+  name: 'Board4',
   data() {
     return {
       timer: null, // 定时器引用
-      currentBoardId: 'board1' // 当前看板的ID，用于从配置中查找下一个看板
+      currentBoardId: 'board4' // 当前看板的ID，用于从配置中查找下一个看板
     }
   },
   mounted() {
@@ -78,14 +78,14 @@ export default {
 </script>
 
 <style scoped>
-.board1 {
+.board4 {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   font-family: 'Microsoft YaHei', Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
   color: white;
 }
 
@@ -99,5 +99,4 @@ p {
   opacity: 0.9;
 }
 </style>
-
 

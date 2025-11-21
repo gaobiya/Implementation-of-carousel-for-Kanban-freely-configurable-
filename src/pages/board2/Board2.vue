@@ -28,13 +28,18 @@ export default {
     /**
      * 开始自动切换
      * 根据配置文件中的设置，自动跳转到下一个看板
+     * 会保持URL中的id参数，确保使用相同的配置
      */
     startAutoSwitch() {
       // 清除可能存在的旧定时器
       this.clearAutoSwitch()
       
+      // 从URL中获取配置ID（如果有的话）
+      const urlParams = new URLSearchParams(window.location.search)
+      const configId = urlParams.get('id')
+      
       // 从配置中获取下一个要跳转的看板
-      const nextBoard = getNextBoard(this.currentBoardId)
+      const nextBoard = getNextBoard(this.currentBoardId, configId)
       
       if (!nextBoard) {
         console.error('无法获取下一个看板配置，自动切换功能已禁用')
@@ -42,13 +47,21 @@ export default {
       }
 
       // 从配置中获取切换间隔时间
-      const switchInterval = getSwitchInterval()
+      const switchInterval = getSwitchInterval(configId)
       
       // 设置定时器，在指定时间后执行跳转
       this.timer = setTimeout(() => {
+        // 构建跳转路径，保持URL中的id参数
+        let nextPath = nextBoard.path
+        if (configId) {
+          // 如果URL中有id参数，在跳转时也带上这个参数
+          const separator = nextPath.includes('?') ? '&' : '?'
+          nextPath = `${nextPath}${separator}id=${configId}`
+        }
+        
         // 使用 window.location.href 实现页面跳转
-        // 跳转路径从配置文件中读取
-        window.location.href = nextBoard.path
+        // 跳转路径从配置文件中读取，并保持配置ID参数
+        window.location.href = nextPath
       }, switchInterval)
     },
     /**

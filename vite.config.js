@@ -14,7 +14,10 @@ export default defineConfig(({ mode }) => {
         input: {
           main: resolve(__dirname, 'index.html'),
           board1: resolve(__dirname, 'board1.html'),
-          board2: resolve(__dirname, 'board2.html')
+          board2: resolve(__dirname, 'board2.html'),
+          board3: resolve(__dirname, 'board3.html'),
+          board4: resolve(__dirname, 'board4.html'),
+          board5: resolve(__dirname, 'board5.html')
         }
       }
     }
