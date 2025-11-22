@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => {
           board2: resolve(__dirname, 'board2.html'),
           board3: resolve(__dirname, 'board3.html'),
           board4: resolve(__dirname, 'board4.html'),
-          board5: resolve(__dirname, 'board5.html')
+          board5: resolve(__dirname, 'board5.html'),
+          'board-external': resolve(__dirname, 'board-external.html')
         }
       }
     }

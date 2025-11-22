@@ -109,3 +109,56 @@ export function getCurrentConfigId() {
   return getConfigIdFromUrl()
 }
 
+/**
+ * 判断URL是否为外部链接（完整URL）
+ * @param {string} url - 要判断的URL
+ * @returns {boolean} 如果是外部链接返回true，否则返回false
+ */
+export function isExternalUrl(url) {
+  if (!url) {
+    return false
+  }
+  
+  // 判断是否以 http:// 或 https:// 开头
+  return /^https?:\/\//i.test(url.trim())
+}
+
+/**
+ * 构建跳转URL
+ * 对于内部链接，会添加配置ID参数；对于外部链接，跳转到中间页面（board-external.html）
+ * @param {string} path - 跳转路径（可以是相对路径或完整URL）
+ * @param {string} configId - 配置ID（可选）
+ * @param {string} boardId - 看板ID（可选，用于外部网站时传递）
+ * @returns {string} 构建后的跳转URL
+ */
+export function buildJumpUrl(path, configId = null, boardId = null) {
+  if (!path) {
+    return ''
+  }
+  
+  // 如果是外部URL，跳转到中间页面 board-external.html
+  if (isExternalUrl(path)) {
+    let externalUrl = `/board-external.html?url=${encodeURIComponent(path)}`
+    
+    // 如果有看板ID，传递看板ID（用于在配置中查找下一个看板）
+    if (boardId) {
+      externalUrl += `&boardId=${encodeURIComponent(boardId)}`
+    }
+    
+    // 如果有配置ID，传递配置ID（用于保持配置）
+    if (configId) {
+      externalUrl += `&id=${configId}`
+    }
+    
+    return externalUrl
+  }
+  
+  // 内部链接，如果有configId则添加参数
+  if (configId) {
+    const separator = path.includes('?') ? '&' : '?'
+    return `${path}${separator}id=${configId}`
+  }
+  
+  return path
+}
+

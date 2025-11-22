@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { getNextBoard, getSwitchInterval } from '../../utils/boardSwitch.js'
+import { getNextBoard, getSwitchInterval, buildJumpUrl } from '../../utils/boardSwitch.js'
 
 export default {
   name: 'Board2',
@@ -51,17 +51,13 @@ export default {
       
       // 设置定时器，在指定时间后执行跳转
       this.timer = setTimeout(() => {
-        // 构建跳转路径，保持URL中的id参数
-        let nextPath = nextBoard.path
-        if (configId) {
-          // 如果URL中有id参数，在跳转时也带上这个参数
-          const separator = nextPath.includes('?') ? '&' : '?'
-          nextPath = `${nextPath}${separator}id=${configId}`
-        }
+        // 构建跳转URL
+        // 对于内部链接，会添加配置ID参数；对于外部链接，直接使用原URL
+        const jumpUrl = buildJumpUrl(nextBoard.path, configId, nextBoard.id)
         
         // 使用 window.location.href 实现页面跳转
-        // 跳转路径从配置文件中读取，并保持配置ID参数
-        window.location.href = nextPath
+        // 支持内部页面和外部网站跳转
+        window.location.href = jumpUrl
       }, switchInterval)
     },
     /**

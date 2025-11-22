@@ -36,7 +36,10 @@ const configs = [
      * 每个看板对象包含：
      * - id: 看板唯一标识（用于识别当前页面）
      * - name: 看板显示名称
-     * - path: 看板页面的访问路径（相对于网站根目录）
+     * - path: 看板页面的访问路径
+     *   * 内部页面：使用相对路径，如 '/board1.html'
+     *   * 外部网站：使用完整URL，如 'http://example.com' 或 'https://example.com'
+     *   * 外部URL会自动通过中间页面（board-external.html）加载，实现自动跳转功能
      */
     boards: [
       {
@@ -63,7 +66,19 @@ const configs = [
         id: 'board5',
         name: '看板5 - 能耗看板',
         path: '/board5.html'
-      }
+      },
+      // 可以添加外部网站，例如：
+      {
+        id: 'external1',
+        name: '外部看板1',
+        path: 'http://baidu.com'
+      },
+      // {
+      //   id: 'external2',
+      //   name: '外部看板2',
+      //   path: 'https://example.com/kanban'
+      // }
+      // 注意：外部网站会通过 board-external.html 中间页面加载，确保自动跳转功能正常工作
     ]
   },
   {
