@@ -158,6 +158,7 @@ export async function getConfigById(configCode) {
     })
     // 从返回结果中提取配置列表
     const configs = extractArray(result)
+    console.log(configs)
     if (configs.length === 0) {
       throw new Error(`未找到ConfigCode为 "${configCode}" 的配置`)
     }
@@ -296,7 +297,37 @@ export async function updateConfig(configCode, updates) {
     }
     
     // 返回更新后的完整配置
-    return await getConfigById(currentConfig.configCode)
+    // 如果更新了configCode，使用新的configCode；否则使用旧的configCode；如果都没有，使用数字ID
+    const finalConfigCode = configUpdates.configCode || currentConfig.configCode
+    if (finalConfigCode) {
+      return await getConfigById(finalConfigCode)
+    } else {
+      // 如果没有configCode，直接通过数字ID获取
+      const { getBoardConfigById } = await import('./api.js')
+      const updatedConfig = await getBoardConfigById(numericId)
+      
+      // 获取看板列表
+      const itemsResult = await getBoardConfigItemList({
+        configId: numericId,
+        pageSize: 1000,
+        status: true
+      })
+      const items = extractArray(itemsResult)
+      const boards = items
+        .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+        .map(item => ({
+          id: item.boardId,
+          name: item.boardName,
+          path: item.boardPath,
+          itemId: item.id,
+          sortOrder: item.sortOrder || 0
+        }))
+      
+      return {
+        ...updatedConfig,
+        boards
+      }
+    }
   } catch (error) {
     console.error('更新配置失败:', error)
     throw error
@@ -308,11 +339,25 @@ export async function updateConfig(configCode, updates) {
  * @param {string} configCode - 配置编码
  * @returns {Promise<boolean>} 是否成功
  */
-export async function deleteConfig(configCode) {
+export async function deleteConfig(configIdOrCode) {
   try {
-    // 先获取配置，获取数字ID
-    const config = await getConfigById(configCode)
-    const numericId = config.id // 数字ID（主键）
+    // 判断传入的是数字ID还是configCode
+    let numericId
+    if (typeof configIdOrCode === 'number') {
+      // 直接是数字ID，直接使用
+      numericId = configIdOrCode
+    } else {
+      // 尝试解析为数字ID
+      const parsedId = parseInt(configIdOrCode, 10)
+      if (!isNaN(parsedId) && String(parsedId) === String(configIdOrCode)) {
+        // 是纯数字字符串，直接使用
+        numericId = parsedId
+      } else {
+        // 是configCode，需要先获取配置获取数字ID
+        const config = await getConfigById(configIdOrCode)
+        numericId = config.id // 数字ID（主键）
+      }
+    }
     
     // 先删除所有配置项
     const itemsResult = await getBoardConfigItemList({

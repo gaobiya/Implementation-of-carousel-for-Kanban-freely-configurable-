@@ -41,7 +41,7 @@
             <el-button size="small" type="primary" icon="el-icon-edit" @click="editConfig(config)" title="编辑">
               编辑
             </el-button>
-            <el-button size="small" type="danger" icon="el-icon-delete" @click="deleteConfigHandler(config.id)" title="删除">
+            <el-button size="small" type="danger" icon="el-icon-delete" @click="deleteConfigHandler(config)" title="删除">
               删除
             </el-button>
           </div>
@@ -147,7 +147,7 @@
             <el-button type="primary" @click="saveConfig" :loading="loading">保存</el-button>
             <el-button @click="cancelEdit">取消</el-button>
           </div>
-        </div>
+    </div>
       </div>
 
       <el-empty v-if="configs.length === 0 && !loading" description="暂无配置，请添加配置"></el-empty>
@@ -283,11 +283,9 @@ export default {
       newConfig: {
         configCode: '',
         name: '',
-        switchInterval: 5000,
-        boards: []
+        switchInterval: 5000
       },
       newBoard: {
-        id: '',
         name: '',
         path: '',
         sortOrder: null
@@ -536,7 +534,7 @@ export default {
         this.loading = false
       }
     },
-    async deleteConfigHandler(configId) {
+    async deleteConfigHandler(config) {
       try {
         await this.$confirm('确定要删除这个配置吗？', '提示', {
           confirmButtonText: '确定',
@@ -546,7 +544,8 @@ export default {
         this.loading = true
         this.errorMessage = ''
         try {
-          await deleteConfig(configId)
+          // 使用数字ID删除配置
+          await deleteConfig(config.id)
           // 如果当前页没有数据了，回到上一页
           if (this.configs.length === 1 && this.pageNum > 1) {
             this.pageNum--
@@ -588,8 +587,7 @@ export default {
       this.newConfig = {
         configCode: '',
         name: '',
-        switchInterval: 5000,
-        boards: []
+        switchInterval: 5000
       }
       this.editingConfigId = null
       this.showAddConfigDialog = true
@@ -638,7 +636,7 @@ export default {
       const defaultSortOrder = currentConfig && currentConfig.boards && currentConfig.boards.length > 0
         ? Math.max(...currentConfig.boards.map(b => b.sortOrder || 0)) + 1
         : 1
-      this.newBoard = { id: '', name: '', path: '', sortOrder: defaultSortOrder }
+      this.newBoard = { name: '', path: '', sortOrder: defaultSortOrder }
       this.showAddBoardDialog = true
     },
     editBoard(configId, board) {
@@ -701,7 +699,7 @@ export default {
         this.showAddBoardDialog = false
         this.editingBoardId = null
         this.currentConfigId = null
-        this.newBoard = { id: '', name: '', path: '', sortOrder: null }
+        this.newBoard = { name: '', path: '', sortOrder: null }
         
         // 如果是新增看板，重置到第一页；如果是编辑，保持当前页
         if (!this.editingBoardId) {
@@ -711,8 +709,6 @@ export default {
         // 重新加载看板列表（带分页）
         await this.loadBoardsForConfig()
         this.$message.success('保存成功')
-        // 重新加载看板列表（带分页）
-        await this.loadBoardsForConfig()
       } catch (error) {
         this.errorMessage = '保存失败：' + (error.message || '未知错误')
         this.$message.error(this.errorMessage)
@@ -789,23 +785,6 @@ export default {
   font-weight: 500;
 }
 
-.btn-primary {
-  background: #409eff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s;
-}
-
-.btn-primary:hover {
-  background: #66b1ff;
-}
 
 .config-list {
   display: flex;
@@ -864,26 +843,6 @@ export default {
   gap: 10px;
 }
 
-.btn-icon {
-  background: #f4f4f5;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-  color: #909399;
-}
-
-.btn-icon:hover {
-  background: #e9e9eb;
-  color: #606266;
-}
-
-.btn-icon.btn-danger:hover {
-  background: #fef0f0;
-  color: #f56c6c;
-}
 
 .config-edit {
   margin-top: 20px;
@@ -891,39 +850,6 @@ export default {
   border-top: 1px solid #ebeef5;
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #606266;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #409eff;
-}
-
-.form-group small {
-  display: block;
-  margin-top: 4px;
-  color: #909399;
-  font-size: 12px;
-}
 
 .boards-section {
   margin-top: 30px;
@@ -943,19 +869,6 @@ export default {
   font-size: 16px;
 }
 
-.btn-small {
-  background: #409eff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.btn-small:hover {
-  background: #66b1ff;
-}
 
 .boards-list {
   display: flex;
@@ -1018,26 +931,6 @@ export default {
   gap: 6px;
 }
 
-.btn-icon-small {
-  background: #f4f4f5;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.3s;
-  color: #909399;
-}
-
-.btn-icon-small:hover:not(:disabled) {
-  background: #e9e9eb;
-  color: #606266;
-}
-
-.btn-icon-small:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 .form-actions {
   display: flex;
@@ -1045,166 +938,4 @@ export default {
   margin-top: 20px;
 }
 
-.btn-secondary {
-  background: #909399;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-secondary:hover {
-  background: #a6a9ad;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 20px;
-  color: #909399;
-  font-size: 14px;
-}
-
-.empty-state-large {
-  text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 4px;
-  color: #909399;
-  border: 1px solid #ebeef5;
-  font-size: 14px;
-}
-
-/* 模态框样式 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal {
-  background: white;
-  border-radius: 4px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #ebeef5;
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: #303133;
-  font-weight: 500;
-  font-size: 18px;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #909399;
-  line-height: 1;
-}
-
-.btn-close:hover {
-  color: #606266;
-}
-
-.modal-body {
-  padding: 20px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 20px;
-  border-top: 1px solid #ebeef5;
-}
-
-/* 加载状态 */
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #409eff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-overlay p {
-  margin-top: 20px;
-  color: #606266;
-  font-size: 14px;
-}
-
-/* 错误提示 */
-.error-message {
-  background: #fef0f0;
-  color: #f56c6c;
-  padding: 12px 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid #fde2e2;
-}
-
-.btn-close-error {
-  background: none;
-  border: none;
-  color: #f56c6c;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 10px;
-  line-height: 1;
-}
-
-.btn-close-error:hover {
-  opacity: 0.7;
-}
-
-.btn-primary:disabled {
-  background: #c0c4cc;
-  cursor: not-allowed;
-}
 </style>
