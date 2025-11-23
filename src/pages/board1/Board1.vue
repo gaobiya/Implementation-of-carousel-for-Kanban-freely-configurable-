@@ -30,35 +30,39 @@ export default {
      * 根据配置文件中的设置，自动跳转到下一个看板
      * 会保持URL中的id参数，确保使用相同的配置
      */
-    startAutoSwitch() {
+    async startAutoSwitch() {
       // 清除可能存在的旧定时器
       this.clearAutoSwitch()
       
-      // 从URL中获取配置ID（如果有的话）
+      // 从URL中获取配置编码（如果有的话）
       const urlParams = new URLSearchParams(window.location.search)
-      const configId = urlParams.get('id')
+      const configId = urlParams.get('configCode')
       
-      // 从配置中获取下一个要跳转的看板
-      const nextBoard = getNextBoard(this.currentBoardId, configId)
-      
-      if (!nextBoard) {
-        console.error('无法获取下一个看板配置，自动切换功能已禁用')
-        return
-      }
-
-      // 从配置中获取切换间隔时间
-      const switchInterval = getSwitchInterval(configId)
-      
-      // 设置定时器，在指定时间后执行跳转
-      this.timer = setTimeout(() => {
-        // 构建跳转URL
-        // 对于内部链接，会添加配置ID参数；对于外部链接，跳转到中间页面
-        const jumpUrl = buildJumpUrl(nextBoard.path, configId, nextBoard.id)
+      try {
+        // 从配置中获取下一个要跳转的看板
+        const nextBoard = await getNextBoard(this.currentBoardId, configId)
         
-        // 使用 window.location.href 实现页面跳转
-        // 支持内部页面和外部网站跳转
-        window.location.href = jumpUrl
-      }, switchInterval)
+        if (!nextBoard) {
+          console.error('无法获取下一个看板配置，自动切换功能已禁用')
+          return
+        }
+
+        // 从配置中获取切换间隔时间
+        const switchInterval = await getSwitchInterval(configId)
+        
+        // 设置定时器，在指定时间后执行跳转
+        this.timer = setTimeout(() => {
+          // 构建跳转URL
+          // 对于内部链接，会添加配置编码参数；对于外部链接，跳转到中间页面
+          const jumpUrl = buildJumpUrl(nextBoard.path, configId, nextBoard.id)
+          
+          // 使用 window.location.href 实现页面跳转
+          // 支持内部页面和外部网站跳转
+          window.location.href = jumpUrl
+        }, switchInterval)
+      } catch (error) {
+        console.error('获取配置失败:', error)
+      }
     },
     /**
      * 清除自动切换定时器
