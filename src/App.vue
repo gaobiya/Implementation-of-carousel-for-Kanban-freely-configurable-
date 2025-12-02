@@ -274,11 +274,11 @@ export default {
       showAddBoardDialog: false,
       // 配置列表分页相关
       pageNum: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       // 看板列表分页相关
       boardPageNum: 1,
-      boardPageSize: 5,
+      boardPageSize: 10,
       boardTotal: 0,
       newConfig: {
         configCode: '',

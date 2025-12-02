@@ -3,7 +3,8 @@
  * 封装所有后端接口调用
  */
 
-const API_BASE_URL = 'http://localhost:8888'
+//const API_BASE_URL = 'http://localhost:8888'//开发
+const API_BASE_URL = 'http://192.168.60.2:9003'//生产
 
 /**
  * 通用请求方法
